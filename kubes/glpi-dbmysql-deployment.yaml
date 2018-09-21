@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: glpi-dbmysql
+  name: glpi-dbmysql
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: glpi-dbmysql
+    spec:
+      containers:
+      - image: mysql:5.6.35
+        name: glpi-mysql
+        ports:
+        - containerPort: 3306
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: glpi-dbmysql-claim0
+      hostname: glpidb
+      restartPolicy: Always
+      volumes:
+      - name: glpi-dbmysql-claim0
+        persistentVolumeClaim:
+          claimName: glpi-dbmysql-claim0
+status: {}

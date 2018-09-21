@@ -10,6 +10,7 @@ services:
         MYSQL_TAG: ${MYSQL_TAG}
         MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     container_name: Glpi-MYSQL
+    image: mysql:5.6.35
     hostname: glpidb
     volumes:
     # hold the persisted data
@@ -24,6 +25,7 @@ services:
       args:
         MOSQUITTO_TAG: ${MOSQUITTO_TAG}
     container_name: Glpi-Mosquitto
+    image: eclipse-mosquitto:1.4.12
     volumes:
     # hold the persisted data
     - ./docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
@@ -38,15 +40,16 @@ services:
       args:
         APACHE_TAG: ${APACHE_TAG}
         HOST_SERVER_NAME: ${HOST_SERVER_NAME}
-        GLPIPATH: ${GLPIPATH}
+        GLPIPATH: /var/www/public/glpi
     container_name: Glpi-apache
+    image: httpd:2.4
     hostname: glpiapache
     volumes:
       # app folder
-      - ./www:${GLPIPATH}:z
+      - ./www:/var/www/public/glpi:z
       - ./docker/apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
       - ./docker/apache/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
-    working_dir: ${GLPIPATH}
+    working_dir: /var/www/public/glpi
     ports:
       # http port
       - ${HOST_SERVER_WEB_PORT}:80
@@ -66,7 +69,7 @@ services:
         GLPI_BRANCH: ${GLPI_BRANCH}
         GLPI_SOURCE: ${GLPI_SOURCE}
         CLONNING_METHOD: ${CLONNING_METHOD}
-        GLPIPATH: ${GLPIPATH}
+        GLPIPATH: /var/www/public/glpi
         DEFAULT_TIME_ZONE: ${DEFAULT_TIME_ZONE}
         FLYVEMDM_BRANCH: ${FLYVEMDM_BRANCH}
         FLYVEMDM_SOURCE: ${FLYVEMDM_SOURCE}
@@ -78,15 +81,16 @@ services:
         HOST_SERVER_MOSQUITTO_PORT_TLS: ${HOST_SERVER_MOSQUITTO_PORT_TLS}
         HOST_SERVER_NAME: ${HOST_SERVER_NAME}
     container_name: Glpi-PHP
+    image: php:7.1-fpm
     hostname: glpiphp
     links:
       - glpi-dbmysql:dockerdb
       - glpi-mosquitto:dockerMosquitto
     command: ["/opt/dev-tools/cliinstall.sh"]
     volumes:
-      - ./www:${GLPIPATH}:z
+      - ./www:/var/www/public/glpi:z
       - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
-      - ${HOST_CONFIG_SSH_PATH}:/root/.ssh:z #Your Access ssh keys
+      - ~/.ssh:/root/.ssh:z #Your Access ssh keys
   glpi-phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: Glpi-Phpmyadmin

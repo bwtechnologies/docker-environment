@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: glpi-apache
+  name: glpi-apache
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: glpi-apache
+    spec:
+      containers:
+      - image: httpd/httpd:2.4
+        name: glpi-apache
+        ports:
+        - containerPort: 80
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/www/public/glpi
+          name: glpi-apache-claim0
+        - mountPath: /usr/local/apache2/conf/httpd.conf
+          name: glpi-apache-claim1
+        - mountPath: /usr/local/apache2/conf/extra/httpd-vhosts.conf
+          name: glpi-apache-claim2
+        workingDir: /var/www/public/glpi
+      hostname: glpiapache
+      restartPolicy: Always
+      volumes:
+      - name: glpi-apache-claim0
+        persistentVolumeClaim:
+          claimName: glpi-apache-claim0
+      - name: glpi-apache-claim1
+        persistentVolumeClaim:
+          claimName: glpi-apache-claim1
+      - name: glpi-apache-claim2
+        persistentVolumeClaim:
+          claimName: glpi-apache-claim2
+status: {}

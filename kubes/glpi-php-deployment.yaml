@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: glpi-php
+  name: glpi-php
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: glpi-php
+    spec:
+      containers:
+      - args:
+        - /opt/dev-tools/cliinstall.sh
+        image: php/php:7.1-fpm
+        name: glpi-php
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+        volumeMounts:
+        - mountPath: /var/www/public/glpi
+          name: glpi-php-claim0
+        - mountPath: /usr/local/etc/php/conf.d/custom.ini
+          name: glpi-php-claim1
+        - mountPath: /root/.ssh
+          name: glpi-php-claim2
+      hostname: glpiphp
+      restartPolicy: Always
+      volumes:
+      - name: glpi-php-claim0
+        persistentVolumeClaim:
+          claimName: glpi-php-claim0
+      - name: glpi-php-claim1
+        persistentVolumeClaim:
+          claimName: glpi-php-claim1
+      - name: glpi-php-claim2
+        persistentVolumeClaim:
+          claimName: glpi-php-claim2
+status: {}

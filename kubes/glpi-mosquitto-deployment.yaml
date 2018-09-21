@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: glpi-mosquitto
+  name: glpi-mosquitto
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: glpi-mosquitto
+    spec:
+      containers:
+      - image: eclipse-mosquitto/eclipse-mosquitto:1.4.12
+        name: glpi-mosquitto
+        ports:
+        - containerPort: 1883
+        - containerPort: 8883
+        resources: {}
+        volumeMounts:
+        - mountPath: /mosquitto/config/mosquitto.conf
+          name: glpi-mosquitto-claim0
+      restartPolicy: Always
+      volumes:
+      - name: glpi-mosquitto-claim0
+        persistentVolumeClaim:
+          claimName: glpi-mosquitto-claim0
+status: {}
